@@ -33,6 +33,12 @@ public class ApiController {
         this.redisTemplate = redisTemplate;
     }
 
+    @GetMapping("/redis-test")
+    public String redisTest() {
+        redisTemplate.opsForValue().set("name", "Ishaan");
+        return redisTemplate.opsForValue().get("name");
+    }
+
     @GetMapping("/api/test")
     public ResponseEntity<String> test(HttpServletRequest request) {
 
@@ -53,9 +59,4 @@ public class ApiController {
                 .body("Request successful ✅");
     }
 
-    @GetMapping("/redis-test")
-    public String redisTest() {
-        redisTemplate.opsForValue().set("name", "Ishaan");
-        return redisTemplate.opsForValue().get("name");
-    }
 }
