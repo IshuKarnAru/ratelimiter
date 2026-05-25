@@ -17,15 +17,15 @@ jobs:
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
-        java-version: '21'
+        java-version: '17'
         distribution: 'temurin'
         cache: maven
 
-    - name: Make mvnw executable
-      run: chmod +x ./ratelimiter/mvnw
-
     - name: Build and Test
       run: ./ratelimiter/mvnw clean verify
+      working-directory: ./ratelimiter
 
     - name: Update dependency graph
       uses: advanced-security/maven-dependency-submission-action@v5
+      with:
+        directory: ./ratelimiter
