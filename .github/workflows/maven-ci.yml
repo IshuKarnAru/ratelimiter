@@ -1,31 +1,52 @@
-name: Java CI with Maven
+name: Maven CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ master, main, develop ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ master, main, develop ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [ '17' ]
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up JDK 21
+    - name: Set up JDK ${{ matrix.java-version }}
       uses: actions/setup-java@v4
       with:
-        java-version: '17'
+        java-version: ${{ matrix.java-version }}
         distribution: 'temurin'
         cache: maven
 
-    - name: Build and Test
-      run: ./ratelimiter/mvnw clean verify
+    - name: Build and verify with Maven
+      run: mvn -B clean verify
       working-directory: ./ratelimiter
 
-    - name: Update dependency graph
-      uses: advanced-security/maven-dependency-submission-action@v5
+    - name: Run tests
+      run: mvn -B test
+      working-directory: ./ratelimiter
+
+    - name: Generate test report
+      if: always()
+      run: mvn -B surefire-report:report
+      working-directory: ./ratelimiter
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
       with:
-        directory: ./ratelimiter
+        name: test-results
+        path: ratelimiter/target/surefire-reports/
+
+    - name: Publish test results
+      if: always()
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        files: ratelimiter/target/surefire-reports/**/*.xml
+        check_name: Test Results
