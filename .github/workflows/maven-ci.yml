@@ -3,15 +3,22 @@ name: Maven CI
 on:
   push:
     branches: [ master, main, develop ]
+
   pull_request:
     branches: [ master, main, develop ]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        java-version: [ '17' ]
+        java-version: [ '21' ]
 
     steps:
     - name: Checkout code
@@ -24,17 +31,17 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    - name: Build and verify with Maven
-      run: mvn -B clean verify
+    - name: Make mvnw executable
+      run: chmod +x mvnw
       working-directory: ./ratelimiter
 
-    - name: Run tests
-      run: mvn -B test
+    - name: Build and verify with Maven
+      run: ./mvnw -B clean verify
       working-directory: ./ratelimiter
 
     - name: Generate test report
       if: always()
-      run: mvn -B surefire-report:report
+      run: ./mvnw surefire-report:report
       working-directory: ./ratelimiter
 
     - name: Upload test results
