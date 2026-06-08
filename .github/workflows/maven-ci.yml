@@ -57,3 +57,11 @@ jobs:
       with:
         files: ratelimiter/target/surefire-reports/**/*.xml
         check_name: Test Results
+
+    - name: Build and Push Docker Image
+      uses: mr-smithers-excellent/docker-build-push@v7
+      with:
+        image: ishukarnarudockerhub/ratelimiter-maven-project
+        registry: docker.io
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
